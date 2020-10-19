@@ -3393,6 +3393,20 @@ class ApiClient {
     }
 
     /**
+     * Gets a list of all the users that have access to SyncPlay.
+     * @returns {Promise} A Promise that resolves to the list of available users.
+     * @since 10.7.0
+     */
+    getAvailableSyncPlayUsers() {
+        const url = this.getUrl(`SyncPlay/ListAvailableUsers`);
+
+        return this.ajax({
+            type: 'GET',
+            url: url
+        });
+    }
+
+    /**
      * Creates a SyncPlay group on the server with the current client as member.
      * @param {object} options Settings for the SyncPlay group to create.
      * @returns {Promise} A Promise fulfilled upon request completion.
@@ -3429,6 +3443,21 @@ class ApiClient {
      */
     leaveSyncPlayGroup() {
         const url = this.getUrl(`SyncPlay/Leave`);
+
+        return this.ajax({
+            type: 'POST',
+            url: url
+        });
+    }
+
+    /**
+     * Updates the settings of the SyncPlay group.
+     * @param {object} options Settings to set.
+     * @returns {Promise} A Promise fulfilled upon request completion.
+     * @since 10.7.0
+     */
+    updateSyncPlayGroupSettings(options = {}) {
+        const url = this.getUrl(`SyncPlay/Settings`, options);
 
         return this.ajax({
             type: 'POST',
