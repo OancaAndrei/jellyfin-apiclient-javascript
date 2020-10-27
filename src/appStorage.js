@@ -14,10 +14,18 @@ function onCacheOpened(result) {
     this.localData = {};
 }
 
+function isChromecast() {
+    const { userAgent } = window.navigator;
+    return userAgent.includes('CrKey');
+}
+
 class AppStore {
     constructor() {
+        // FIXME: Remove this specific Chromecast check when Google decides to fix its issues.
+        // Issue: https://bugs.chromium.org/p/chromium/issues/detail?id=1018902
+        // Check: https://issuetracker.google.com/issues/36189456
         try {
-            if (self && self.caches) {
+            if (!isChromecast() && self && self.caches) {
                 caches.open('embydata').then(onCacheOpened.bind(this));
             }
         } catch (err) {
