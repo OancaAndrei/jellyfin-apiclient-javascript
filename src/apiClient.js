@@ -584,6 +584,47 @@ class ApiClient {
         return this.getJSON(url);
     }
 
+    /**
+     * Creates a new session from an existing one.
+     * @param {String} accessToken The access token. Identifies the session to fork.
+     * @param {String} deviceId The device identifier. Identifies the session to fork.
+     */
+    forkSession(accessToken, deviceId) {
+        if (!accessToken || !deviceId) {
+            return Promise.reject();
+        }
+
+        const url = this.getUrl('Users/ForkSession');
+
+        return new Promise((resolve, reject) => {
+            const postData = {
+                AccessToken: accessToken,
+                DeviceId: deviceId
+            };
+
+            this.ajax({
+                type: 'POST',
+                url: url,
+                data: JSON.stringify(postData),
+                dataType: 'json',
+                contentType: 'application/json'
+            })
+                .then((result) => {
+                    const afterOnAuthenticated = () => {
+                        redetectBitrate(this);
+                        resolve(result);
+                    };
+
+                    if (this.onAuthenticated) {
+                        this.onAuthenticated(this, result).then(afterOnAuthenticated);
+                    } else {
+                        afterOnAuthenticated();
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
     ensureWebSocket() {
         if (this.isWebSocketOpenOrConnecting() || !this.isWebSocketSupported()) {
             return;
@@ -3438,11 +3479,12 @@ class ApiClient {
 
     /**
      * Leaves the current SyncPlay group.
+     * @param {object} options Information about the SyncPlay group to leave.
      * @returns {Promise} A Promise fulfilled upon request completion.
      * @since 10.6.0
      */
-    leaveSyncPlayGroup() {
-        const url = this.getUrl(`SyncPlay/Leave`);
+    leaveSyncPlayGroup(options = {}) {
+        const url = this.getUrl(`SyncPlay/Leave`, options);
 
         return this.ajax({
             type: 'POST',
