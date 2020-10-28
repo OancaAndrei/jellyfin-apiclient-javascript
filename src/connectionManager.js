@@ -342,7 +342,7 @@ export default class ConnectionManager {
             apiClient.serverInfo(server);
             afterConnected(apiClient, options);
 
-            return onLocalUserSignIn(server, apiClient.serverAddress(), result.User);
+            return onLocalUserSignIn(server, apiClient.serverAddress(), result.User, result.SessionInfo);
         }
 
         function afterConnected(apiClient, options = {}) {
@@ -358,7 +358,7 @@ export default class ConnectionManager {
             }
         }
 
-        function onLocalUserSignIn(server, serverUrl, user) {
+        function onLocalUserSignIn(server, serverUrl, user, sessionInfo) {
             // Ensure this is created so that listeners of the event can get the apiClient instance
             self._getOrAddApiClient(server, serverUrl);
 
@@ -366,7 +366,7 @@ export default class ConnectionManager {
             const promise = self.onLocalUserSignedIn ? self.onLocalUserSignedIn.call(self, user) : Promise.resolve();
 
             return promise.then(() => {
-                events.trigger(self, 'localusersignedin', [user]);
+                events.trigger(self, 'localusersignedin', [user, sessionInfo]);
             });
         }
 
